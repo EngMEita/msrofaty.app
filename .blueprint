@@ -1,2 +1,74 @@
+created:
+    - app/Http/Controllers/Acp/UserController.php
+    - app/Http/Controllers/Acp/AccountController.php
+    - app/Http/Controllers/Acp/CategoryController.php
+    - app/Http/Controllers/Acp/EntryController.php
+    - app/Http/Controllers/Acp/RecordController.php
+    - app/Http/Controllers/Acp/BudgetController.php
+    - database/factories/AccountFactory.php
+    - database/factories/CategoryFactory.php
+    - database/factories/EntryFactory.php
+    - database/factories/RecordFactory.php
+    - database/factories/BudgetFactory.php
+    - database/migrations/2022_06_28_091250_create_accounts_table.php
+    - database/migrations/2022_06_28_091251_create_categories_table.php
+    - database/migrations/2022_06_28_091252_create_entries_table.php
+    - database/migrations/2022_06_28_091253_create_records_table.php
+    - database/migrations/2022_06_28_091254_create_budgets_table.php
+    - database/migrations/2022_06_28_091255_create_budget_category_table.php
+    - app/Models/Account.php
+    - app/Models/Category.php
+    - app/Models/Entry.php
+    - app/Models/Record.php
+    - app/Models/Budget.php
+    - tests/Feature/Http/Controllers/Acp/UserControllerTest.php
+    - tests/Feature/Http/Controllers/Acp/AccountControllerTest.php
+    - tests/Feature/Http/Controllers/Acp/CategoryControllerTest.php
+    - tests/Feature/Http/Controllers/Acp/EntryControllerTest.php
+    - tests/Feature/Http/Controllers/Acp/RecordControllerTest.php
+    - tests/Feature/Http/Controllers/Acp/BudgetControllerTest.php
+    - app/Http/Requests/Acp/UserStoreRequest.php
+    - app/Http/Requests/Acp/UserUpdateRequest.php
+    - app/Http/Requests/Acp/AccountStoreRequest.php
+    - app/Http/Requests/Acp/AccountUpdateRequest.php
+    - app/Http/Requests/Acp/CategoryStoreRequest.php
+    - app/Http/Requests/Acp/CategoryUpdateRequest.php
+    - app/Http/Requests/Acp/EntryStoreRequest.php
+    - app/Http/Requests/Acp/EntryUpdateRequest.php
+    - app/Http/Requests/Acp/RecordStoreRequest.php
+    - app/Http/Requests/Acp/RecordUpdateRequest.php
+    - app/Http/Requests/Acp/BudgetStoreRequest.php
+    - app/Http/Requests/Acp/BudgetUpdateRequest.php
+    - resources/views/user/index.blade.php
+    - resources/views/user/create.blade.php
+    - resources/views/user/show.blade.php
+    - resources/views/user/edit.blade.php
+    - resources/views/account/index.blade.php
+    - resources/views/account/create.blade.php
+    - resources/views/account/show.blade.php
+    - resources/views/account/edit.blade.php
+    - resources/views/category/index.blade.php
+    - resources/views/category/create.blade.php
+    - resources/views/category/show.blade.php
+    - resources/views/category/edit.blade.php
+    - resources/views/entry/index.blade.php
+    - resources/views/entry/create.blade.php
+    - resources/views/entry/show.blade.php
+    - resources/views/entry/edit.blade.php
+    - resources/views/record/index.blade.php
+    - resources/views/record/create.blade.php
+    - resources/views/record/show.blade.php
+    - resources/views/record/edit.blade.php
+    - resources/views/budget/index.blade.php
+    - resources/views/budget/create.blade.php
+    - resources/views/budget/show.blade.php
+    - resources/views/budget/edit.blade.php
+updated:
+    - routes/web.php
 models:
     User: { name: string, email: string, email_verified_at: 'datetime nullable', password: string, remember_token: 'string:100 nullable' }
+    Account: { name: 'string:100', relationships: { hasMany: Record } }
+    Category: { name: 'string:100', category_id: 'id foreign nullable', relationships: { hasMany: 'Record, Category', belongsTo: Category, belongsToMany: Budget } }
+    Entry: { date: date, note: 'text nullable', user_id: 'id foreing', relationships: { hasMany: Record, belongsTo: User } }
+    Record: { entry_id: 'id foreing', account_id: 'id foreing', type: 'enum:-1,1', value: 'decimal:8,2', category_id: 'id foreing nullable', comment: 'string:255 nullable', relationships: { belongsTo: 'Entry, Account, Category' } }
+    Budget: { name: 'string:100', start_date: date, end_date: date, limit: 'decimal:8,2', notice: 'decimal:5,2', user_id: 'id foreing', relationships: { hasMany: Category, belongsTo: User } }
