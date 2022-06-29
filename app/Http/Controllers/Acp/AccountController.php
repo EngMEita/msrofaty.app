@@ -10,14 +10,9 @@ use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function index($account_id = null)
     {
         $accounts = Account::all();
-
         return view('acp.account.index', compact('accounts'));
     }
 
@@ -40,7 +35,7 @@ class AccountController extends Controller
 
         $request->session()->flash('account.id', $account->id);
 
-        return redirect()->route('account.index');
+        return redirect()->route('acp.account.index');
     }
 
     /**
@@ -58,9 +53,11 @@ class AccountController extends Controller
      * @param \App\Models\Account $account
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Account $account)
+    public function edit($id)
     {
-        return view('acp.account.edit', compact('account'));
+        $accounts = Account::all();
+        $current  = Account::findOrFail($id);
+        return view('acp.account.index', compact('current', 'accounts'));
     }
 
     /**
@@ -74,7 +71,7 @@ class AccountController extends Controller
 
         $request->session()->flash('account.id', $account->id);
 
-        return redirect()->route('account.index');
+        return redirect()->route('acp.account.index');
     }
 
     /**
@@ -86,6 +83,6 @@ class AccountController extends Controller
     {
         $account->delete();
 
-        return redirect()->route('account.index');
+        return redirect()->route('acp.account.index');
     }
 }

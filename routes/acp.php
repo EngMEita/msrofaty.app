@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('acp')->name('acp.')->middleware(['auth'])->group(function () {
     Route::get('/', function () {
-        return view('dashboard');
+        return view('acp.dashboard');
     })->name('dashboard');
 
     Route::resource('user', App\Http\Controllers\Acp\UserController::class);
