@@ -48,4 +48,5 @@ class Category extends Model
     {
         return $this->belongsToMany(Budget::class);
     }
+
 }

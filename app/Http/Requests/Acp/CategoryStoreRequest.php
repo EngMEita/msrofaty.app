@@ -25,7 +25,7 @@ class CategoryStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:100'],
-            'category_id' => ['integer', 'exists:categories,id'],
+            'category_id' => ['integer', 'exists:categories,id', 'nullable'],
         ];
     }
 }

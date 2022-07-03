@@ -17,8 +17,8 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $categories = Category::all();
-
-        return view('acp.category.index', compact('categories'));
+        $list       = $this->categorisList();
+        return view('acp.category.index', compact('categories', 'list'));
     }
 
     /**
@@ -40,7 +40,7 @@ class CategoryController extends Controller
 
         $request->session()->flash('category.id', $category->id);
 
-        return redirect()->route('category.index');
+        return redirect()->route('acp.category.index');
     }
 
     /**
@@ -58,9 +58,12 @@ class CategoryController extends Controller
      * @param \App\Models\Category $category
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Category $category)
+    public function edit($id)
     {
-        return view('acp.category.edit', compact('category'));
+        $categories = Category::all();
+        $current    = Category::findOrFail($id);
+        $list       = $this->categorisList();
+        return view('acp.category.index', compact('categories', 'current', 'list'));
     }
 
     /**
@@ -74,7 +77,7 @@ class CategoryController extends Controller
 
         $request->session()->flash('category.id', $category->id);
 
-        return redirect()->route('category.index');
+        return redirect()->route('acp.category.index');
     }
 
     /**
@@ -86,6 +89,28 @@ class CategoryController extends Controller
     {
         $category->delete();
 
-        return redirect()->route('category.index');
+        return redirect()->route('acp.category.index');
+    }
+
+    ///
+
+    private function categorisList($parent_id = null, $level = 1, $output = [])
+    {
+        if (is_null($parent_id)) {
+            $categories = Category::whereNull('category_id')->get();
+        } else {
+            $categories = Category::where('category_id', $parent_id)->get();
+        }
+
+        foreach ($categories as $i => $category) {
+            $category->level = $level;
+            $output[$level.'.'.$category->id] = $category;
+            if ($category->categories->count() > 0) {
+                $level++;
+                $output = $this->categorisList($category->id, $level, $output);
+                $level--;
+            }
+        }
+        return $output;
     }
 }
