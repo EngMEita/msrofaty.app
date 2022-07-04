@@ -2,9 +2,8 @@
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('acp')->name('acp.')->middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return view('acp.dashboard');
-    })->name('dashboard');
+    Route::get('/', [App\Http\Controllers\Acp\HomeController::class, 'index'])->name('dashboard');
+    Route::get('/report/{year}/{month}', [App\Http\Controllers\Acp\HomeController::class, 'report'])->name('report');
 
     Route::resource('user', App\Http\Controllers\Acp\UserController::class);
 

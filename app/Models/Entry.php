@@ -40,4 +40,36 @@ class Entry extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getStatusAttribute ()
+    {
+        $d = $this->withdraw - $this->deposit;
+
+        if ( $d > 0 || $d < 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getWithdrawAttribute()
+    {
+        $value = 0;
+        foreach ($this->records as $record)
+        {
+            $value += $record->type < 0 ? $record->value : 0;
+        }
+        return $value;
+    }
+
+    public function getDepositAttribute()
+    {
+        $value = 0;
+        foreach ($this->records as $record)
+        {
+            $value += $record->type > 0 ? $record->value : 0;
+        }
+        return $value;
+    }
 }

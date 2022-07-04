@@ -50,4 +50,9 @@ class Record extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function getDateAttribute()
+    {
+        return $this->entry->date;
+    }
 }
