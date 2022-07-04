@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Acp;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UserUpdateRequest extends FormRequest
@@ -24,11 +25,9 @@ class UserUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email'],
-            'email_verified_at' => [''],
-            'password' => ['required', 'password'],
-            'remember_token' => ['string', 'max:100'],
+            'name'     => ['required', 'string'],
+            'email'    => ['required', 'email',  Rule::unique('users', 'email')->ignore($this->user()->id)],
+            'password' => ['sometimes', 'nullable', 'min:8'],
         ];
     }
 }

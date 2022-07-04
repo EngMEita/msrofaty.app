@@ -40,7 +40,7 @@ class UserController extends Controller
 
         $request->session()->flash('user.id', $user->id);
 
-        return redirect()->route('user.index');
+        return redirect()->route('acp.user.index');
     }
 
     /**
@@ -70,11 +70,21 @@ class UserController extends Controller
      */
     public function update(UserUpdateRequest $request, User $user)
     {
-        $user->update($request->validated());
+        $data = [
+            'name'  => $request->name ,
+            'email' => $request->email
+        ];
+        if($request->password)
+        {
+            $data['password'] = $request->password ;
+        }
+
+        // $user->update($request->validated());
+        $user->update($data) ;
 
         $request->session()->flash('user.id', $user->id);
 
-        return redirect()->route('user.index');
+        return redirect()->route('acp.user.index');
     }
 
     /**
@@ -86,6 +96,6 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return redirect()->route('user.index');
+        return redirect()->route('acp.user.index');
     }
 }

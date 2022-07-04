@@ -11,21 +11,25 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                <div class="hidden space-x-4 sm:-my-px sm:ml-10 sm:flex">
                     <x-nav-link :href="route('acp.dashboard')" :active="request()->routeIs('acp.dashboard')">
-                        الرئيسية
+                        <i class="fa-solid fa-home fa-fw"></i> الرئيسية
                     </x-nav-link>
 
                     <x-nav-link :href="route('acp.account.index')" :active="request()->routeIs('acp.account.index')">
-                        الحسابات
+                        <i class="fa-solid fa-money-bill-transfer fa-fw"></i> الحسابات
                     </x-nav-link>
 
                     <x-nav-link :href="route('acp.category.index')" :active="request()->routeIs('acp.category.index')">
-                        التصنيفات
+                        <i class="fa-solid fa-tags fa-fw"></i> التصنيفات
                     </x-nav-link>
 
                     <x-nav-link :href="route('acp.budget.index')" :active="request()->routeIs('acp.budget.index')">
-                        الميزانيات
+                        <i class="fa-solid fa-filter-circle-dollar fa-fw"></i> الميزانيات
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('acp.user.index')" :active="request()->routeIs('acp.user.index')">
+                        <i class="fa-solid fa-users fa-fw"></i> المستخدمين
                     </x-nav-link>
 
                 </div>
