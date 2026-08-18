@@ -27,7 +27,8 @@ class CategoryController extends Controller
      */
     public function create(Request $request)
     {
-        return view('acp.category.create');
+        $categories = auth()->user()->household()->categories()->orderBy('name')->get();
+        return view('acp.category.create', compact('categories'));
     }
 
     /**

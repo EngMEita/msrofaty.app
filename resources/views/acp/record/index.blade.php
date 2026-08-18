@@ -1,7 +1,4 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        record.index template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><div class="flex items-center justify-between"><h2>تفاصيل السجلات</h2><a class="btn-ms" href="{{ route('acp.record.create') }}">+ إضافة سطر</a></div></x-slot>
+    <div class="py-8"><div class="max-w-7xl mx-auto px-4"><div class="bg-white rounded-lg shadow-sm overflow-x-auto"><table><thead><tr><th>العملية</th><th>الحساب</th><th>التصنيف</th><th>النوع</th><th>المبلغ</th><th>إجراءات</th></tr></thead><tbody>@forelse($records as $record)<tr><td>{{ $record->entry?->note ?: 'عملية بدون وصف' }}</td><td>{{ $record->account?->name }}</td><td>{{ $record->category?->name ?: '—' }}</td><td>{{ $record->type < 0 ? 'مصروف' : 'إيراد' }}</td><td class="font-bold">{{ number_format((float)$record->value, 2) }}</td><td class="flex gap-2"><a class="btn-light px-3 py-1" href="{{ route('acp.record.show', $record) }}">عرض</a><a class="btn-ms px-3 py-1" href="{{ route('acp.record.edit', $record) }}">تعديل</a></td></tr>@empty<tr><td colspan="6" class="text-center py-8 text-gray-500">لا توجد تفاصيل مسجلة بعد.</td></tr>@endforelse</tbody></table></div><div class="mt-6">{{ $records->links() }}</div></div></div>
+</x-app-layout>

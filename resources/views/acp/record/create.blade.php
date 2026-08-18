@@ -1,7 +1,6 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        record.create template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><h2>إضافة تفصيل مالي</h2></x-slot>
+    <div class="py-8"><div class="max-w-3xl mx-auto px-4"><div class="bg-white rounded-lg p-6 shadow-sm"><x-auth-validation-errors class="alert" :errors="$errors" /><form method="POST" action="{{ route('acp.record.store') }}" class="grid gap-5">@csrf
+        <div><label for="entry_id">العملية</label><select id="entry_id" name="entry_id" required>@foreach($entries as $entry)<option value="{{ $entry->id ?? $entry }}">{{ $entry->note ?? ('عملية #'.$entry) }}</option>@endforeach</select></div><div><label for="account_id">الحساب</label><select id="account_id" name="account_id" required>@foreach($accounts as $account)<option value="{{ $account->id }}">{{ $account->name }}</option>@endforeach</select></div><div><label for="category_id">التصنيف</label><select id="category_id" name="category_id"><option value="">بدون تصنيف</option>@foreach($categories as $category)<option value="{{ $category->id }}">{{ $category->name }}</option>@endforeach</select></div><div><label for="type">النوع</label><select id="type" name="type"><option value="-1">مصروف</option><option value="1">إيراد</option></select></div><div><label for="value">المبلغ</label><input id="value" type="number" name="value" min="0.01" step="0.01" required></div><div><label for="comment">الوصف</label><input id="comment" name="comment" maxlength="255"></div><div class="flex justify-end gap-3"><a class="btn-light px-5 py-2" href="{{ route('acp.record.index') }}">إلغاء</a><button class="btn-ms" type="submit">حفظ التفصيل</button></div>
+    </form></div></div></div>
+</x-app-layout>

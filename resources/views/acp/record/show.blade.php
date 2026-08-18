@@ -1,7 +1,4 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        record.show template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><div class="flex items-center justify-between"><h2>تفصيل مالي #{{ $record->id }}</h2><a class="btn-ms" href="{{ route('acp.record.edit', $record) }}">تعديل</a></div></x-slot>
+    <div class="py-8"><div class="max-w-3xl mx-auto px-4"><div class="bg-white rounded-lg p-6 shadow-sm"><div class="grid gap-4"><p><strong>العملية:</strong> {{ $record->entry?->note ?: 'بدون وصف' }}</p><p><strong>الحساب:</strong> {{ $record->account?->name }}</p><p><strong>التصنيف:</strong> {{ $record->category?->name ?: 'بدون تصنيف' }}</p><p><strong>النوع:</strong> {{ $record->type < 0 ? 'مصروف' : 'إيراد' }}</p><p><strong>المبلغ:</strong> {{ number_format((float)$record->value, 2) }}</p><p><strong>الوصف:</strong> {{ $record->comment ?: '—' }}</p></div><div class="mt-6"><a class="btn-light px-5 py-2" href="{{ route('acp.record.index') }}">العودة للسجلات</a></div></div></div></div>
+</x-app-layout>
