@@ -35,6 +35,10 @@ class EntryUpdateRequest extends FormRequest
             'records.*.type' => ['required', 'in:-1,1'],
             'records.*.value' => ['required', 'numeric', 'gt:0', 'between:0.01,999999.99'],
             'records.*.comment' => ['nullable', 'string', 'max:255'],
+            'payment_splits' => ['nullable', 'array'],
+            'payment_splits.*.account_id' => ['required', 'integer', 'exists:accounts,id'],
+            'payment_splits.*.amount' => ['required', 'numeric', 'gt:0', 'between:0.01,9999999999.99'],
+            'payment_splits.*.note' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

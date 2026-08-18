@@ -49,18 +49,25 @@ class EntryController extends Controller
         $data['entry_type'] = $data['entry_type'] ?? 'expense';
         $records = $data['records'] ?? [];
         unset($data['records']);
+        $paymentSplits = $data['payment_splits'] ?? [];
+        unset($data['payment_splits']);
         foreach ($records as $record) {
             abort_unless($household->accounts()->whereKey($record['account_id'])->exists(), 422);
             if (!empty($record['category_id'])) {
                 abort_unless($household->categories()->whereKey($record['category_id'])->exists(), 422);
             }
         }
-        $entry = DB::transaction(function () use ($data, $records, $household) {
+        foreach ($paymentSplits as $split) abort_unless($household->accounts()->whereKey($split['account_id'])->exists(), 422);
+        $entry = DB::transaction(function () use ($data, $records, $paymentSplits, $household) {
             $entry = Entry::create(array_merge($data, ['user_id' => auth()->id(), 'household_id' => $household->id, 'workflow_status' => 'draft', 'reference_number' => 'OP-' . now()->format('YmdHis') . '-' . random_int(100, 999)]));
             foreach ($records as $record) {
                 $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
             }
-            if (count($records)) $entry->update(['workflow_status' => 'allocated']);
+            foreach ($paymentSplits as $split) $entry->paymentSplits()->create($split);
+            $entry->refresh();
+            $allocated = (float) $entry->records()->sum('value');
+            $paid = (float) $entry->paymentSplits()->sum('amount');
+            $entry->update(['workflow_status' => abs((float) $entry->total_amount - $allocated) < .01 && abs((float) $entry->total_amount - $paid) < .01 ? 'balanced' : (count($records) || count($paymentSplits) ? 'allocated' : 'draft')]);
             return $entry;
         });
 
@@ -105,14 +112,22 @@ class EntryController extends Controller
         $data['entry_type'] = $data['entry_type'] ?? 'expense';
         $records = $data['records'] ?? [];
         unset($data['records']);
+        $paymentSplits = $data['payment_splits'] ?? [];
+        unset($data['payment_splits']);
         foreach ($records as $record) {
             abort_unless($household->accounts()->whereKey($record['account_id'])->exists(), 422);
             if (!empty($record['category_id'])) abort_unless($household->categories()->whereKey($record['category_id'])->exists(), 422);
         }
-        DB::transaction(function () use ($entry, $data, $records, $household) {
+        foreach ($paymentSplits as $split) abort_unless($household->accounts()->whereKey($split['account_id'])->exists(), 422);
+        DB::transaction(function () use ($entry, $data, $records, $paymentSplits, $household) {
             $entry->update(array_merge($data, ['user_id' => auth()->id()]));
             $entry->records()->delete();
             foreach ($records as $record) $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
+            $entry->paymentSplits()->delete();
+            foreach ($paymentSplits as $split) $entry->paymentSplits()->create($split);
+            $allocated = (float) $entry->records()->sum('value');
+            $paid = (float) $entry->paymentSplits()->sum('amount');
+            $entry->update(['workflow_status' => abs((float) $entry->total_amount - $allocated) < .01 && abs((float) $entry->total_amount - $paid) < .01 ? 'balanced' : (count($records) || count($paymentSplits) ? 'allocated' : 'draft')]);
         });
 
         $request->session()->flash('entry.id', $entry->id);
