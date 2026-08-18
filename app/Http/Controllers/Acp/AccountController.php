@@ -12,7 +12,7 @@ class AccountController extends Controller
 {
     public function index($account_id = null)
     {
-        $accounts = Account::all();
+        $accounts = auth()->user()->household()->accounts()->get();
         return view('acp.account.index', compact('accounts'));
     }
 
@@ -31,7 +31,7 @@ class AccountController extends Controller
      */
     public function store(AccountStoreRequest $request)
     {
-        $account = Account::create($request->validated());
+        $account = Account::create(array_merge($request->validated(), ['household_id' => auth()->user()->household()->id]));
 
         $request->session()->flash('account.id', $account->id);
 
@@ -55,7 +55,7 @@ class AccountController extends Controller
      */
     public function edit($id)
     {
-        $accounts = Account::all();
+        $accounts = auth()->user()->household()->accounts()->get();
         $current  = Account::findOrFail($id);
         return view('acp.account.index', compact('current', 'accounts'));
     }
@@ -67,6 +67,7 @@ class AccountController extends Controller
      */
     public function update(AccountUpdateRequest $request, Account $account)
     {
+        abort_unless($account->household_id === auth()->user()->household()->id, 404);
         $account->update($request->validated());
 
         $request->session()->flash('account.id', $account->id);
@@ -81,6 +82,7 @@ class AccountController extends Controller
      */
     public function destroy(Request $request, Account $account)
     {
+        abort_unless($account->household_id === auth()->user()->household()->id, 404);
         $account->delete();
 
         return redirect()->route('acp.account.index');

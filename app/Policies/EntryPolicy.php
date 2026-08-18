@@ -15,7 +15,7 @@ class EntryPolicy
      */
     public function view(User $user, Entry $entry): bool
     {
-        return $user->id === $entry->user_id;
+        return $user->households()->whereKey($entry->household_id)->exists();
     }
 
     /**
@@ -31,7 +31,7 @@ class EntryPolicy
      */
     public function update(User $user, Entry $entry): bool
     {
-        return $user->id === $entry->user_id;
+        return $user->households()->whereKey($entry->household_id)->wherePivotIn('role', ['owner', 'editor'])->exists();
     }
 
     /**
@@ -39,6 +39,6 @@ class EntryPolicy
      */
     public function delete(User $user, Entry $entry): bool
     {
-        return $user->id === $entry->user_id;
+        return $user->households()->whereKey($entry->household_id)->wherePivotIn('role', ['owner', 'editor'])->exists();
     }
 }

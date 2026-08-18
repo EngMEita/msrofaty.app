@@ -37,9 +37,10 @@ class RecordController extends Controller
      */
     public function create(Request $request): View
     {
-        $entries = auth()->user()->entries()->pluck('id');
-        $accounts = \App\Models\Account::all();
-        $categories = \App\Models\Category::all();
+        $household = auth()->user()->household();
+        $entries = $household->entries()->pluck('id');
+        $accounts = $household->accounts()->get();
+        $categories = $household->categories()->get();
 
         return view('acp.record.create', compact('entries', 'accounts', 'categories'));
     }
@@ -49,11 +50,17 @@ class RecordController extends Controller
      */
     public function store(RecordStoreRequest $request): RedirectResponse
     {
-        // Validate that entry belongs to authenticated user
-        $entry = \App\Models\Entry::findOrFail($request->entry_id);
+        $household = auth()->user()->household();
+        $entry = $household->entries()->findOrFail($request->entry_id);
+        abort_unless($household->accounts()->whereKey($request->account_id)->exists(), 422, 'Account must belong to the current household.');
+        if ($request->filled('category_id')) {
+            abort_unless($household->categories()->whereKey($request->category_id)->exists(), 422, 'Category must belong to the current household.');
+        }
         $this->authorize('update', $entry);
 
-        $record = Record::create($request->validated());
+        $data = $request->validated();
+        $data['household_id'] = auth()->user()->household()->id;
+        $record = Record::create($data);
 
         $request->session()->flash('message', 'Record created successfully.');
 
@@ -77,9 +84,10 @@ class RecordController extends Controller
     {
         $this->authorize('update', $record);
 
-        $entries = auth()->user()->entries()->pluck('id');
-        $accounts = \App\Models\Account::all();
-        $categories = \App\Models\Category::all();
+        $household = auth()->user()->household();
+        $entries = $household->entries()->pluck('id');
+        $accounts = $household->accounts()->get();
+        $categories = $household->categories()->get();
 
         return view('acp.record.edit', compact('record', 'entries', 'accounts', 'categories'));
     }
@@ -91,7 +99,16 @@ class RecordController extends Controller
     {
         $this->authorize('update', $record);
 
-        $record->update($request->validated());
+        $household = auth()->user()->household();
+        abort_unless($household->entries()->whereKey($request->entry_id)->exists(), 422, 'Entry must belong to the current household.');
+        abort_unless($household->accounts()->whereKey($request->account_id)->exists(), 422, 'Account must belong to the current household.');
+        if ($request->filled('category_id')) {
+            abort_unless($household->categories()->whereKey($request->category_id)->exists(), 422, 'Category must belong to the current household.');
+        }
+
+        $data = $request->validated();
+        $data['household_id'] = auth()->user()->household()->id;
+        $record->update($data);
 
         $request->session()->flash('message', 'Record updated successfully.');
 

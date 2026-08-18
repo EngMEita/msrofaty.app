@@ -16,7 +16,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories = Category::all();
+        $categories = auth()->user()->household()->categories()->get();
         $list       = $this->categorisList();
         return view('acp.category.index', compact('categories', 'list'));
     }
@@ -36,7 +36,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        $category = Category::create($request->validated());
+        $category = Category::create(array_merge($request->validated(), ['household_id' => auth()->user()->household()->id]));
 
         $request->session()->flash('category.id', $category->id);
 
@@ -60,7 +60,7 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        $categories = Category::all();
+        $categories = auth()->user()->household()->categories()->get();
         $current    = Category::findOrFail($id);
         $list       = $this->categorisList();
         return view('acp.category.index', compact('categories', 'current', 'list'));
@@ -73,6 +73,7 @@ class CategoryController extends Controller
      */
     public function update(CategoryUpdateRequest $request, Category $category)
     {
+        abort_unless($category->household_id === auth()->user()->household()->id, 404);
         $category->update($request->validated());
 
         $request->session()->flash('category.id', $category->id);
@@ -87,6 +88,7 @@ class CategoryController extends Controller
      */
     public function destroy(Request $request, Category $category)
     {
+        abort_unless($category->household_id === auth()->user()->household()->id, 404);
         $category->delete();
 
         return redirect()->route('acp.category.index');
@@ -97,15 +99,15 @@ class CategoryController extends Controller
     private function categorisList($parent_id = null, $level = 1, $output = [])
     {
         if (is_null($parent_id)) {
-            $categories = Category::whereNull('category_id')->get();
+            $categories = Category::where('household_id', auth()->user()->household()->id)->whereNull('category_id')->get();
         } else {
-            $categories = Category::where('category_id', $parent_id)->get();
+            $categories = Category::where('household_id', auth()->user()->household()->id)->where('category_id', $parent_id)->get();
         }
 
         foreach ($categories as $i => $category) {
             $category->level = $level;
             $output[$level.'.'.$category->id] = $category;
-            if ($category->categories->count() > 0) {
+            if ($category->subcategories->count() > 0) {
                 $level++;
                 $output = $this->categorisList($category->id, $level, $output);
                 $level--;

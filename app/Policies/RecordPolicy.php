@@ -15,7 +15,7 @@ class RecordPolicy
      */
     public function view(User $user, Record $record): bool
     {
-        return $user->id === $record->entry->user_id;
+        return $user->households()->whereKey($record->household_id)->exists();
     }
 
     /**
@@ -31,7 +31,7 @@ class RecordPolicy
      */
     public function update(User $user, Record $record): bool
     {
-        return $user->id === $record->entry->user_id;
+        return $user->households()->whereKey($record->household_id)->wherePivotIn('role', ['owner', 'editor'])->exists();
     }
 
     /**
@@ -39,6 +39,6 @@ class RecordPolicy
      */
     public function delete(User $user, Record $record): bool
     {
-        return $user->id === $record->entry->user_id;
+        return $user->households()->whereKey($record->household_id)->wherePivotIn('role', ['owner', 'editor'])->exists();
     }
 }

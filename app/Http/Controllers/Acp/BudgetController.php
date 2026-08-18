@@ -35,7 +35,7 @@ class BudgetController extends Controller
      */
     public function create(Request $request): View
     {
-        $categories = \App\Models\Category::all();
+        $categories = auth()->user()->household()->categories()->get();
         return view('acp.budget.create', compact('categories'));
     }
 
@@ -74,7 +74,7 @@ class BudgetController extends Controller
     {
         $this->authorize('update', $budget);
 
-        $categories = \App\Models\Category::all();
+        $categories = auth()->user()->household()->categories()->get();
         $selectedCategories = $budget->categories->pluck('id')->toArray();
 
         return view('acp.budget.edit', compact('budget', 'categories', 'selectedCategories'));

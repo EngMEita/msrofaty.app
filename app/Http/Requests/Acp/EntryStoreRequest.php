@@ -13,7 +13,7 @@ class EntryStoreRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->check() && auth()->user()->household() !== null;
     }
 
     /**
@@ -26,7 +26,6 @@ class EntryStoreRequest extends FormRequest
         return [
             'date' => ['required', 'date'],
             'note' => ['string'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 }

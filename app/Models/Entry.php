@@ -18,6 +18,7 @@ class Entry extends Model
         'date',
         'note',
         'user_id',
+        'household_id',
     ];
 
     /**
@@ -29,6 +30,7 @@ class Entry extends Model
         'id' => 'integer',
         'date' => 'date',
         'user_id' => 'integer',
+        'household_id' => 'integer',
     ];
 
     public function records()
@@ -41,6 +43,11 @@ class Entry extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function household()
+    {
+        return $this->belongsTo(Household::class);
+    }
+
     public function getStatusAttribute()
     {
         // Return true if entry is balanced (withdraw == deposit)
@@ -51,7 +58,7 @@ class Entry extends Model
     {
         $value = 0;
         foreach ($this->records as $record) {
-            $value += $record->type < 0 ? $record->value : 0;
+            $value += $record->type < 0 ? abs($record->value) : 0;
         }
         return $value;
     }

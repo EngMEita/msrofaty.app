@@ -21,6 +21,7 @@ class Budget extends Model
         'limit',
         'notice',
         'user_id',
+        'household_id',
     ];
 
     /**
@@ -35,6 +36,7 @@ class Budget extends Model
         'limit' => 'decimal:2',
         'notice' => 'decimal:2',
         'user_id' => 'integer',
+        'household_id' => 'integer',
     ];
 
     public function categories()
@@ -45,5 +47,10 @@ class Budget extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function household()
+    {
+        return $this->belongsTo(Household::class);
     }
 }

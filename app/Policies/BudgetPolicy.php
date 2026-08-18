@@ -15,7 +15,7 @@ class BudgetPolicy
      */
     public function view(User $user, Budget $budget): bool
     {
-        return $user->id === $budget->user_id;
+        return $user->households()->whereKey($budget->household_id)->exists();
     }
 
     /**
@@ -31,7 +31,7 @@ class BudgetPolicy
      */
     public function update(User $user, Budget $budget): bool
     {
-        return $user->id === $budget->user_id;
+        return $user->households()->whereKey($budget->household_id)->wherePivotIn('role', ['owner', 'editor'])->exists();
     }
 
     /**
@@ -39,6 +39,6 @@ class BudgetPolicy
      */
     public function delete(User $user, Budget $budget): bool
     {
-        return $user->id === $budget->user_id;
+        return $user->households()->whereKey($budget->household_id)->wherePivotIn('role', ['owner', 'editor'])->exists();
     }
 }

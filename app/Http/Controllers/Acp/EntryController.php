@@ -16,7 +16,7 @@ class EntryController extends Controller
      */
     public function index(Request $request)
     {
-        $entries = Entry::all();
+        $entries = auth()->user()->household()->entries()->with('records')->latest('date')->paginate(20);
 
         return view('acp.entry.index', compact('entries'));
     }
@@ -36,11 +36,14 @@ class EntryController extends Controller
      */
     public function store(EntryStoreRequest $request)
     {
-        $entry = Entry::create($request->validated());
+        $entry = Entry::create(array_merge($request->validated(), [
+            'user_id' => auth()->id(),
+            'household_id' => auth()->user()->household()->id,
+        ]));
 
         $request->session()->flash('entry.id', $entry->id);
 
-        return redirect()->route('entry.index');
+        return redirect()->route('acp.entry.index');
     }
 
     /**
@@ -50,6 +53,7 @@ class EntryController extends Controller
      */
     public function show(Request $request, Entry $entry)
     {
+        $this->authorize('view', $entry);
         return view('acp.entry.show', compact('entry'));
     }
 
@@ -60,6 +64,7 @@ class EntryController extends Controller
      */
     public function edit(Request $request, Entry $entry)
     {
+        $this->authorize('update', $entry);
         return view('acp.entry.edit', compact('entry'));
     }
 
@@ -70,11 +75,11 @@ class EntryController extends Controller
      */
     public function update(EntryUpdateRequest $request, Entry $entry)
     {
-        $entry->update($request->validated());
+        $entry->update(array_merge($request->validated(), ['user_id' => auth()->id()]));
 
         $request->session()->flash('entry.id', $entry->id);
 
-        return redirect()->route('entry.index');
+        return redirect()->route('acp.entry.index');
     }
 
     /**
@@ -84,8 +89,9 @@ class EntryController extends Controller
      */
     public function destroy(Request $request, Entry $entry)
     {
+        $this->authorize('delete', $entry);
         $entry->delete();
 
-        return redirect()->route('entry.index');
+        return redirect()->route('acp.entry.index');
     }
 }

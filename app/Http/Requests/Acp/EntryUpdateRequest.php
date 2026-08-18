@@ -13,7 +13,8 @@ class EntryUpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return auth()->check() && auth()->user()->household() !== null
+            && $this->user()->can('update', $this->route('entry'));
     }
 
     /**
@@ -26,7 +27,6 @@ class EntryUpdateRequest extends FormRequest
         return [
             'date' => ['required', 'date'],
             'note' => ['string'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 }

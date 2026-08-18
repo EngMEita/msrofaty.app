@@ -16,6 +16,7 @@ class Account extends Model
      */
     protected $fillable = [
         'name',
+        'household_id',
     ];
 
     /**
@@ -25,11 +26,17 @@ class Account extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'household_id' => 'integer',
     ];
 
     public function records()
     {
         return $this->hasMany(Record::class);
+    }
+
+    public function household()
+    {
+        return $this->belongsTo(Household::class);
     }
 
     public function getBalanceAttribute()

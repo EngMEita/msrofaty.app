@@ -28,7 +28,7 @@ class RecordUpdateRequest extends FormRequest
             'account_id' => ['required', 'integer', 'exists:accounts,id'],
             'type' => ['required', 'in:-1,1'],
             'value' => ['required', 'numeric', 'between:-999999.99,999999.99'],
-            'category_id' => ['integer', 'exists:categories,id'],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'comment' => ['string', 'max:255'],
         ];
     }

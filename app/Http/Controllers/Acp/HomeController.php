@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers\Acp;
 
-use Carbon\Carbon;
-use App\Models\Entry;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\View\View;
-use Illuminate\Pagination\Paginator;
 
 class HomeController extends Controller
 {
     public function index(): View
     {
-        // Get entries only for the authenticated user
-        $entries = auth()->user()->entries()
+        $household = auth()->user()->household();
+        $entries = $household ? $household->entries()
             ->with(['records'])
             ->latest('date')
-            ->paginate(20);
+            ->paginate(20) : collect();
 
         return view('acp.dashboard', compact('entries'));
     }
@@ -32,5 +30,18 @@ class HomeController extends Controller
      * Get entries for a specific year and month for authenticated user
      */
     private function getEntriesByYearAndMonth(?int $year = null, ?int $month = null)
+    {
+        $household = auth()->user()->household();
+
+        if (!$household) {
+            return collect();
+        }
+
+        return $household->entries()
+            ->whereYear('date', $year)
+            ->whereMonth('date', $month)
+            ->with('records')
+            ->latest('date')
+            ->get();
     }
 }

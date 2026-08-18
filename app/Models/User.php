@@ -57,4 +57,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Budget::class);
     }
+
+    public function households()
+    {
+        return $this->belongsToMany(Household::class)->withPivot('role')->withTimestamps();
+    }
+
+    public function household()
+    {
+        return $this->households()->first();
+    }
 }

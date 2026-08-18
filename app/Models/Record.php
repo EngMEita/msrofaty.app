@@ -21,6 +21,7 @@ class Record extends Model
         'value',
         'category_id',
         'comment',
+        'household_id',
     ];
 
     /**
@@ -34,11 +35,17 @@ class Record extends Model
         'account_id' => 'integer',
         'value' => 'decimal:2',
         'category_id' => 'integer',
+        'household_id' => 'integer',
     ];
 
     public function entry()
     {
         return $this->belongsTo(Entry::class);
+    }
+
+    public function household()
+    {
+        return $this->belongsTo(Household::class);
     }
 
     public function account()
