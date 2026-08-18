@@ -17,6 +17,7 @@ class Account extends Model
     protected $fillable = [
         'name',
         'household_id',
+        'currency_id',
     ];
 
     /**
@@ -38,6 +39,7 @@ class Account extends Model
     {
         return $this->belongsTo(Household::class);
     }
+    public function currency() { return $this->belongsTo(Currency::class); }
 
     public function getBalanceAttribute()
     {

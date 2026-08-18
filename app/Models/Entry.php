@@ -17,6 +17,9 @@ class Entry extends Model
     protected $fillable = [
         'date',
         'note',
+        'total_amount',
+        'entry_type',
+        'currency',
         'user_id',
         'household_id',
     ];
@@ -31,11 +34,27 @@ class Entry extends Model
         'date' => 'date',
         'user_id' => 'integer',
         'household_id' => 'integer',
+        'total_amount' => 'decimal:2',
     ];
 
     public function records()
     {
         return $this->hasMany(Record::class);
+    }
+
+    public function paymentSplits()
+    {
+        return $this->hasMany(EntryPaymentSplit::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(EntryAttachment::class);
+    }
+
+    public function getPaidAmountAttribute()
+    {
+        return $this->paymentSplits->sum(fn ($split) => (float) $split->amount);
     }
 
     public function user()
@@ -50,8 +69,14 @@ class Entry extends Model
 
     public function getStatusAttribute()
     {
-        // Return true if entry is balanced (withdraw == deposit)
-        return $this->withdraw == $this->deposit;
+        return $this->total_amount !== null
+            ? abs((float) $this->total_amount - (float) ($this->withdraw + $this->deposit)) < 0.01
+            : $this->withdraw == $this->deposit;
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return ['income' => 'دخل', 'expense' => 'مصروف', 'transfer' => 'تحويل داخلي', 'refund' => 'استرداد', 'other' => 'أخرى'][$this->entry_type] ?? 'أخرى';
     }
 
     public function getWithdrawAttribute()

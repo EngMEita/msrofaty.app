@@ -27,7 +27,9 @@ class EntryUpdateRequest extends FormRequest
         return [
             'date' => ['required', 'date'],
             'note' => ['string'],
-            'records' => ['required', 'array', 'min:1'],
+            'total_amount' => ['required', 'numeric', 'gt:0', 'between:0.01,9999999999.99'],
+            'entry_type' => ['nullable', 'in:income,expense,transfer,refund,other'],
+            'records' => ['nullable', 'array'],
             'records.*.account_id' => ['required', 'integer', 'exists:accounts,id'],
             'records.*.category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'records.*.type' => ['required', 'in:-1,1'],

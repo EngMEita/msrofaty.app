@@ -46,7 +46,8 @@ class EntryController extends Controller
         $plans->assertWithinLimit(auth()->user()->household(), 'transactions');
         $household = auth()->user()->household();
         $data = $request->validated();
-        $records = $data['records'];
+        $data['entry_type'] = $data['entry_type'] ?? 'expense';
+        $records = $data['records'] ?? [];
         unset($data['records']);
         foreach ($records as $record) {
             abort_unless($household->accounts()->whereKey($record['account_id'])->exists(), 422);
@@ -100,7 +101,8 @@ class EntryController extends Controller
     {
         $household = auth()->user()->household();
         $data = $request->validated();
-        $records = $data['records'];
+        $data['entry_type'] = $data['entry_type'] ?? 'expense';
+        $records = $data['records'] ?? [];
         unset($data['records']);
         foreach ($records as $record) {
             abort_unless($household->accounts()->whereKey($record['account_id'])->exists(), 422);

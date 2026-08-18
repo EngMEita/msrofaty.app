@@ -44,4 +44,7 @@ class Household extends Model
     {
         return $this->hasMany(Budget::class);
     }
+    public function currencies() { return $this->hasMany(Currency::class); }
+    public function exchangeRates() { return $this->hasMany(ExchangeRate::class); }
+    public function currencyConversions() { return $this->hasMany(CurrencyConversion::class); }
 }
