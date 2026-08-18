@@ -156,4 +156,13 @@ class EntryController extends Controller
 
         return redirect()->route('acp.entry.index');
     }
+
+    public function destroyAttachment(Request $request, Entry $entry, \App\Models\EntryAttachment $attachment)
+    {
+        $this->authorize('update', $entry);
+        abort_unless($attachment->entry_id === $entry->id, 404);
+        \Illuminate\Support\Facades\Storage::disk($attachment->disk)->delete($attachment->path);
+        $attachment->delete();
+        return back()->with('message', 'تم حذف المرفق.');
+    }
 }

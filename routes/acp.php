@@ -12,6 +12,7 @@ Route::prefix('family')->name('acp.')->middleware(['auth', 'household'])->group(
     Route::resource('category', App\Http\Controllers\Acp\CategoryController::class);
 
     Route::resource('entry', App\Http\Controllers\Acp\EntryController::class);
+    Route::delete('/entry/{entry}/attachments/{attachment}', [App\Http\Controllers\Acp\EntryController::class, 'destroyAttachment'])->name('entry.attachments.destroy');
 
     Route::resource('record', App\Http\Controllers\Acp\RecordController::class);
 
