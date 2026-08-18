@@ -96,7 +96,7 @@ class EntryController extends Controller
     {
         $this->authorize('update', $entry);
         $household = auth()->user()->household();
-        $entry->load('records');
+        $entry->load(['records', 'paymentSplits']);
         return view('acp.entry.edit', ['entry' => $entry, 'accounts' => $household->accounts()->orderBy('name')->get(), 'categories' => $household->categories()->orderBy('name')->get()]);
     }
 
