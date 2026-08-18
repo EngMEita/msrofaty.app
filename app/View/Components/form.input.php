@@ -4,7 +4,7 @@ namespace App\View\Components;
 
 use Illuminate\View\Component;
 
-class form.input extends Component
+class FormInput extends Component
 {
     /**
      * Create a new component instance.

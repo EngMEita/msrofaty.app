@@ -10,82 +10,101 @@ use Illuminate\Http\Request;
 
 class RecordController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $records = Record::all();
+        $records = Record::whereHas('entry', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
+            ->with(['entry', 'account', 'category'])
+            ->latest('created_at')
+            ->paginate(50);
 
         return view('acp.record.index', compact('records'));
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Show the form for creating a new resource.
      */
     public function create(Request $request)
     {
-        return view('acp.record.create');
+        $entries = auth()->user()->entries()->pluck('id');
+        $accounts = \App\Models\Account::all();
+        $categories = \App\Models\Category::all();
+
+        return view('acp.record.create', compact('entries', 'accounts', 'categories'));
     }
 
     /**
-     * @param \App\Http\Requests\Acp\RecordStoreRequest $request
-     * @return \Illuminate\Http\Response
+     * Store a newly created resource in storage.
      */
     public function store(RecordStoreRequest $request)
     {
+        // Validate that entry belongs to authenticated user
+        $entry = \App\Models\Entry::findOrFail($request->entry_id);
+        $this->authorize('update', $entry);
+
         $record = Record::create($request->validated());
 
-        $request->session()->flash('record.id', $record->id);
+        $request->session()->flash('message', 'Record created successfully.');
 
-        return redirect()->route('record.index');
+        return redirect()->route('acp.record.index');
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Record $record
-     * @return \Illuminate\Http\Response
+     * Display the specified resource.
      */
     public function show(Request $request, Record $record)
     {
+        $this->authorize('view', $record);
+
         return view('acp.record.show', compact('record'));
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Record $record
-     * @return \Illuminate\Http\Response
+     * Show the form for editing the specified resource.
      */
     public function edit(Request $request, Record $record)
     {
-        return view('acp.record.edit', compact('record'));
+        $this->authorize('update', $record);
+
+        $entries = auth()->user()->entries()->pluck('id');
+        $accounts = \App\Models\Account::all();
+        $categories = \App\Models\Category::all();
+
+        return view('acp.record.edit', compact('record', 'entries', 'accounts', 'categories'));
     }
 
     /**
-     * @param \App\Http\Requests\Acp\RecordUpdateRequest $request
-     * @param \App\Models\Record $record
-     * @return \Illuminate\Http\Response
+     * Update the specified resource in storage.
      */
     public function update(RecordUpdateRequest $request, Record $record)
     {
+        $this->authorize('update', $record);
+
         $record->update($request->validated());
 
-        $request->session()->flash('record.id', $record->id);
+        $request->session()->flash('message', 'Record updated successfully.');
 
-        return redirect()->route('record.index');
+        return redirect()->route('acp.record.index');
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Record $record
-     * @return \Illuminate\Http\Response
+     * Remove the specified resource from storage.
      */
     public function destroy(Request $request, Record $record)
     {
+        $this->authorize('delete', $record);
+
         $record->delete();
 
-        return redirect()->route('record.index');
+        return redirect()->route('acp.record.index')->with('message', 'Record deleted successfully.');
     }
 }

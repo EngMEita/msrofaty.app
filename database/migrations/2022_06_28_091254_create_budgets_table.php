@@ -22,7 +22,7 @@ class CreateBudgetsTable extends Migration
             $table->date('end_date');
             $table->decimal('limit', 8, 2);
             $table->decimal('notice', 5, 2);
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
 

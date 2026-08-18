@@ -34,19 +34,18 @@ class Category extends Model
         return $this->hasMany(Record::class);
     }
 
-    public function categories()
+    public function parentCategory()
     {
-        return $this->hasMany(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function category()
+    public function subcategories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->hasMany(Category::class, 'category_id');
     }
 
     public function budgets()
     {
         return $this->belongsToMany(Budget::class);
     }
-
 }

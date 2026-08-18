@@ -34,11 +34,10 @@ class Account extends Model
 
     public function getBalanceAttribute()
     {
-        $records = $this->records();
+        $records = $this->records;
         $balance = 0;
-        foreach ( $records as $record )
-        {
-            $balance += $record->value * $record->type ;
+        foreach ($records as $record) {
+            $balance += $record->value * $record->type;
         }
         return $balance;
     }

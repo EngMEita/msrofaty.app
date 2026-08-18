@@ -17,11 +17,11 @@ class CreateRecordsTable extends Migration
 
         Schema::create('records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('entry_id');
-            $table->unsignedBigInteger('account_id');
-            $table->enum('type', ["-1","1"]);
+            $table->foreignId('entry_id')->constrained('entries')->onDelete('cascade');
+            $table->foreignId('account_id')->constrained('accounts')->onDelete('cascade');
+            $table->enum('type', ["-1", "1"]);
             $table->decimal('value', 8, 2);
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('comment', 255)->nullable();
             $table->timestamps();
         });

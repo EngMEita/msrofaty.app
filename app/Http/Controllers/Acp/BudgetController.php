@@ -10,82 +10,100 @@ use Illuminate\Http\Request;
 
 class BudgetController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Display a listing of budgets for authenticated user.
      */
     public function index(Request $request)
     {
-        $budgets = Budget::all();
+        $budgets = auth()->user()->budgets()
+            ->with(['categories'])
+            ->latest('created_at')
+            ->paginate(20);
 
         return view('acp.budget.index', compact('budgets'));
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Show the form for creating a new budget.
      */
     public function create(Request $request)
     {
-        return view('acp.budget.create');
+        $categories = \App\Models\Category::all();
+        return view('acp.budget.create', compact('categories'));
     }
 
     /**
-     * @param \App\Http\Requests\Acp\BudgetStoreRequest $request
-     * @return \Illuminate\Http\Response
+     * Store a newly created budget in storage.
      */
     public function store(BudgetStoreRequest $request)
     {
-        $budget = Budget::create($request->validated());
+        $data = $request->validated();
+        $data['user_id'] = auth()->id();
 
-        $request->session()->flash('budget.id', $budget->id);
+        $budget = Budget::create($data);
 
-        return redirect()->route('budget.index');
+        // Attach categories if provided
+        if ($request->has('categories')) {
+            $budget->categories()->sync($request->input('categories'));
+        }
+
+        return redirect()->route('acp.budget.index')->with('message', 'Budget created successfully.');
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Budget $budget
-     * @return \Illuminate\Http\Response
+     * Display the specified budget.
      */
     public function show(Request $request, Budget $budget)
     {
+        $this->authorize('view', $budget);
+
         return view('acp.budget.show', compact('budget'));
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Budget $budget
-     * @return \Illuminate\Http\Response
+     * Show the form for editing the specified budget.
      */
     public function edit(Request $request, Budget $budget)
     {
-        return view('acp.budget.edit', compact('budget'));
+        $this->authorize('update', $budget);
+
+        $categories = \App\Models\Category::all();
+        $selectedCategories = $budget->categories->pluck('id')->toArray();
+
+        return view('acp.budget.edit', compact('budget', 'categories', 'selectedCategories'));
     }
 
     /**
-     * @param \App\Http\Requests\Acp\BudgetUpdateRequest $request
-     * @param \App\Models\Budget $budget
-     * @return \Illuminate\Http\Response
+     * Update the specified budget in storage.
      */
     public function update(BudgetUpdateRequest $request, Budget $budget)
     {
+        $this->authorize('update', $budget);
+
         $budget->update($request->validated());
 
-        $request->session()->flash('budget.id', $budget->id);
+        // Update categories if provided
+        if ($request->has('categories')) {
+            $budget->categories()->sync($request->input('categories'));
+        }
 
-        return redirect()->route('budget.index');
+        return redirect()->route('acp.budget.index')->with('message', 'Budget updated successfully.');
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Budget $budget
-     * @return \Illuminate\Http\Response
+     * Remove the specified budget from storage.
      */
     public function destroy(Request $request, Budget $budget)
     {
+        $this->authorize('delete', $budget);
+
         $budget->delete();
 
-        return redirect()->route('budget.index');
+        return redirect()->route('acp.budget.index')->with('message', 'Budget deleted successfully.');
     }
 }

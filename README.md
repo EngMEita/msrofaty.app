@@ -1,64 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# مصروفاتي - تطبيق إدارة المصروفات الشخصية
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+تطبيق ويب متقدم لإدارة المصروفات الشخصية والميزانيات، مبني بـ Laravel 8.
 
-## About Laravel
+## المميزات الرئيسية
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- ✅ **إدارة الحسابات البنكية** - تابع أرصدتك المختلفة
+- ✅ **تسجيل المعاملات** - سجل الإيداعات والسحوبات بسهولة
+- ✅ **تصنيفات مرنة** - نظام تصنيفات متسلسل (رئيسي وفرعي)
+- ✅ **الميزانيات** - ضع حدود مالية واتبع إنفاقك
+- ✅ **التقارير الشهرية** - اعرض ملخصات إنفاقك
+- ✅ **الأمان** - التحقق من الملكية على جميع البيانات
+- ✅ **Pagination** - عرض آمن وفعال للبيانات
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## البنية الأساسية
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+app/
+├── Models/           # نماذج البيانات (User, Entry, Record, Budget, etc.)
+├── Http/
+│   ├── Controllers/  # معالجات الطلبات
+│   ├── Requests/     # التحقق من صحة المدخلات
+│   └── Middleware/   # البرامج الوسيطة
+├── Policies/         # سياسات التفويض والأمان
+└── Providers/        # مزودي الخدمات
 
-## Learning Laravel
+database/
+├── migrations/       # هجرات قاعدة البيانات
+├── factories/        # مصانع البيانات للاختبارات
+└── seeders/          # بذور البيانات
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+routes/
+├── web.php           # المسارات الرئيسية
+├── acp.php           # مسارات لوحة التحكم
+└── auth.php          # مسارات المصادقة
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+tests/
+├── Unit/             # اختبارات الوحدات
+└── Feature/          # اختبارات الميزات
+```
 
-## Laravel Sponsors
+## العلاقات بين البيانات
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```
+User (المستخدم)
+├── hasMany -> Entry (المعاملات)
+├── hasMany -> Budget (الميزانيات)
+│   └── belongsToMany -> Category (التصنيفات)
+└── Policies (سياسات التفويض)
 
-### Premium Partners
+Entry (المعاملة)
+├── belongsTo -> User
+├── hasMany -> Record (السجلات)
+├── attribute: status (متوازن أم لا؟)
+├── attribute: deposit (إجمالي الإيداعات)
+└── attribute: withdraw (إجمالي السحوبات)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Record (السجل)
+├── belongsTo -> Entry
+├── belongsTo -> Account (الحساب)
+├── belongsTo -> Category (التصنيف)
+├── attribute: type (1 = إيداع، -1 = سحب)
+└── attribute: value (المبلغ)
 
-## Contributing
+Account (الحساب)
+├── hasMany -> Record
+└── attribute: balance (الرصيد المحسوب)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Category (التصنيف)
+├── hasMany -> Record
+├── hasMany -> subcategories (تصنيفات فرعية)
+├── belongsTo -> parentCategory (التصنيف الأب)
+└── belongsToMany -> Budget
 
-## Code of Conduct
+Budget (الميزانية)
+├── belongsTo -> User
+└── belongsToMany -> Category
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## التطبيق
 
-## Security Vulnerabilities
+### متطلبات التشغيل
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- PHP 8.0+ 
+- Composer
+- Node.js و npm
+- MySQL/SQLite
+- Laravel 8.75+
 
-## License
+### التثبيت والإعداد
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+# 1. استنساخ المشروع
+git clone <repo-url>
+cd msrofaty.app
+
+# 2. تثبيت مكتبات PHP
+composer install
+
+# 3. تثبيت مكتبات JavaScript
+npm install
+
+# 4. نسخ ملف البيئة
+cp .env.example .env
+
+# 5. توليد مفتاح التطبيق
+php artisan key:generate
+
+# 6. تشغيل الهجرات
+php artisan migrate
+
+# 7. (اختياري) ملء البيانات الأساسية
+php artisan db:seed
+
+# 8. بناء الأصول الأمامية
+npm run dev
+```
+
+### تشغيل التطبيق
+
+```bash
+# تشغيل خادم التطوير
+php artisan serve
+
+# في نافذة أخرى - مراقبة تغييرات JavaScript/CSS
+npm run watch
+```
+
+ثم افتح المتصفح على: `http://127.0.0.1:8000`
+
+## الاختبارات
+
+```bash
+# تشغيل جميع الاختبارات
+php artisan test
+
+# تشغيل اختبارات معينة
+php artisan test tests/Unit/AccountModelTest.php
+php artisan test tests/Feature/EntryControllerTest.php
+
+# مع نسبة الغطاء (Coverage)
+php artisan test --coverage
+```
+
+## نقاط الأمان المُطبقة
+
+✅ **التحقق من المصادقة** - تسجيل الدخول مطلوب
+✅ **سياسات التفويض** - التحقق من ملكية البيانات
+✅ **تحقق من صحة المدخلات** - Form Requests
+✅ **CSRF Protection** - حماية من الهجمات
+✅ **Pagination** - منع تحميل كميات ضخمة من البيانات
+✅ **Foreign Keys** - قيود قاعدة البيانات
+✅ **Encrypted Cookies** - حماية الجلسات
+
+## الميزات القادمة
+
+- [ ] المصادقة متعددة العوامل (2FA)
+- [ ] تصدير البيانات (PDF/Excel)
+- [ ] التنبيهات عند تجاوز الميزانية
+- [ ] API RESTful
+- [ ] تطبيق موبايل
+
+## المساهمة
+
+يرجى فتح issue أو pull request للمساهمة في تحسين المشروع.
+
+## الترخيص
+
+MIT License - انظر LICENSE للتفاصيل.
+
+## الدعم
+
+للمساعدة أو الإبلاغ عن مشاكل، يرجى فتح issue على المستودع.

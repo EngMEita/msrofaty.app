@@ -41,23 +41,16 @@ class Entry extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getStatusAttribute ()
+    public function getStatusAttribute()
     {
-        $d = $this->withdraw - $this->deposit;
-
-        if ( $d > 0 || $d < 0)
-        {
-            return false;
-        }
-
-        return true;
+        // Return true if entry is balanced (withdraw == deposit)
+        return $this->withdraw == $this->deposit;
     }
 
     public function getWithdrawAttribute()
     {
         $value = 0;
-        foreach ($this->records as $record)
-        {
+        foreach ($this->records as $record) {
             $value += $record->type < 0 ? $record->value : 0;
         }
         return $value;
@@ -66,8 +59,7 @@ class Entry extends Model
     public function getDepositAttribute()
     {
         $value = 0;
-        foreach ($this->records as $record)
-        {
+        foreach ($this->records as $record) {
             $value += $record->type > 0 ? $record->value : 0;
         }
         return $value;

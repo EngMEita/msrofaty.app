@@ -16,8 +16,11 @@ class CreateBudgetCategoryTable extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('budget_category', function (Blueprint $table) {
-            $table->foreignId('budget_id');
-            $table->foreignId('category_id');
+            $table->id();
+            $table->foreignId('budget_id')->constrained('budgets')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
+            $table->timestamps();
+            $table->unique(['budget_id', 'category_id']);
         });
 
         Schema::enableForeignKeyConstraints();

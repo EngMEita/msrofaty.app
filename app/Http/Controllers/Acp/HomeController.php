@@ -10,27 +10,32 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // $entries = $this->getEntriesByYearAndMonth ();
-        $entries = Entry::all();
+        // Get entries only for the authenticated user
+        $entries = auth()->user()->entries()
+            ->with(['records'])
+            ->latest('date')
+            ->paginate(20);
+
         return view('acp.dashboard', compact('entries'));
     }
 
     public function report($year, $month)
     {
-        $entries = $this->getEntriesByYearAndMonth ($year, $month);
-        dd ($entries) ;
+        $entries = $this->getEntriesByYearAndMonth($year, $month);
+
+        return view('acp.report', compact('entries', 'year', 'month'));
     }
 
-
-
-
-    // The repeated methods //
-    private function getEntriesByYearAndMonth ($year = null, $month = null)
+    /**
+     * Get entries for a specific year and month for authenticated user
+     */
+    private function getEntriesByYearAndMonth($year = null, $month = null)
     {
-        return Entry::whereYear('date', $year ?? Carbon::today()->year)
-                    ->whereMonth('date', $month ?? Carbon::today()->month)
-                    ->with(['records'])
-                    ->orderBy('date', 'DESC')
-                    ->get();
+        return auth()->user()->entries()
+            ->whereYear('date', $year ?? Carbon::today()->year)
+            ->whereMonth('date', $month ?? Carbon::today()->month)
+            ->with(['records'])
+            ->orderBy('date', 'DESC')
+            ->get();
     }
 }
