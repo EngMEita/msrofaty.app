@@ -84,6 +84,7 @@ class EntryController extends Controller
     public function show(Request $request, Entry $entry)
     {
         $this->authorize('view', $entry);
+        $entry->load(['records.account', 'records.category', 'paymentSplits.account']);
         return view('acp.entry.show', compact('entry'));
     }
 
