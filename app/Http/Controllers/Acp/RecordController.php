@@ -7,6 +7,8 @@ use App\Http\Requests\Acp\RecordStoreRequest;
 use App\Http\Requests\Acp\RecordUpdateRequest;
 use App\Models\Record;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class RecordController extends Controller
 {
@@ -18,7 +20,7 @@ class RecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $records = Record::whereHas('entry', function ($query) {
             $query->where('user_id', auth()->id());
@@ -33,7 +35,7 @@ class RecordController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $entries = auth()->user()->entries()->pluck('id');
         $accounts = \App\Models\Account::all();
@@ -45,7 +47,7 @@ class RecordController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RecordStoreRequest $request)
+    public function store(RecordStoreRequest $request): RedirectResponse
     {
         // Validate that entry belongs to authenticated user
         $entry = \App\Models\Entry::findOrFail($request->entry_id);
@@ -61,7 +63,7 @@ class RecordController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Record $record)
+    public function show(Request $request, Record $record): View
     {
         $this->authorize('view', $record);
 
@@ -71,7 +73,7 @@ class RecordController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Request $request, Record $record)
+    public function edit(Request $request, Record $record): View
     {
         $this->authorize('update', $record);
 
@@ -85,7 +87,7 @@ class RecordController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(RecordUpdateRequest $request, Record $record)
+    public function update(RecordUpdateRequest $request, Record $record): RedirectResponse
     {
         $this->authorize('update', $record);
 
@@ -99,7 +101,7 @@ class RecordController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Record $record)
+    public function destroy(Request $request, Record $record): RedirectResponse
     {
         $this->authorize('delete', $record);
 

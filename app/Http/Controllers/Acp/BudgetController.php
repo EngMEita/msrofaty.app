@@ -7,6 +7,8 @@ use App\Http\Requests\Acp\BudgetStoreRequest;
 use App\Http\Requests\Acp\BudgetUpdateRequest;
 use App\Models\Budget;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class BudgetController extends Controller
 {
@@ -18,7 +20,7 @@ class BudgetController extends Controller
     /**
      * Display a listing of budgets for authenticated user.
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $budgets = auth()->user()->budgets()
             ->with(['categories'])
@@ -31,7 +33,7 @@ class BudgetController extends Controller
     /**
      * Show the form for creating a new budget.
      */
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $categories = \App\Models\Category::all();
         return view('acp.budget.create', compact('categories'));
@@ -40,7 +42,7 @@ class BudgetController extends Controller
     /**
      * Store a newly created budget in storage.
      */
-    public function store(BudgetStoreRequest $request)
+    public function store(BudgetStoreRequest $request): RedirectResponse
     {
         $data = $request->validated();
         $data['user_id'] = auth()->id();
@@ -58,7 +60,7 @@ class BudgetController extends Controller
     /**
      * Display the specified budget.
      */
-    public function show(Request $request, Budget $budget)
+    public function show(Request $request, Budget $budget): View
     {
         $this->authorize('view', $budget);
 
@@ -68,7 +70,7 @@ class BudgetController extends Controller
     /**
      * Show the form for editing the specified budget.
      */
-    public function edit(Request $request, Budget $budget)
+    public function edit(Request $request, Budget $budget): View
     {
         $this->authorize('update', $budget);
 
@@ -81,7 +83,7 @@ class BudgetController extends Controller
     /**
      * Update the specified budget in storage.
      */
-    public function update(BudgetUpdateRequest $request, Budget $budget)
+    public function update(BudgetUpdateRequest $request, Budget $budget): RedirectResponse
     {
         $this->authorize('update', $budget);
 
@@ -98,7 +100,7 @@ class BudgetController extends Controller
     /**
      * Remove the specified budget from storage.
      */
-    public function destroy(Request $request, Budget $budget)
+    public function destroy(Request $request, Budget $budget): RedirectResponse
     {
         $this->authorize('delete', $budget);
 
