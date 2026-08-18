@@ -29,7 +29,6 @@ class BudgetUpdateRequest extends FormRequest
             'end_date' => ['required', 'date'],
             'limit' => ['required', 'numeric', 'between:-999999.99,999999.99'],
             'notice' => ['required', 'numeric', 'between:-999.99,999.99'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
         ];
     }
 }

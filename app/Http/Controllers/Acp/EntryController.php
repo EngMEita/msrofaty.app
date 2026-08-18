@@ -7,6 +7,7 @@ use App\Http\Requests\Acp\EntryStoreRequest;
 use App\Http\Requests\Acp\EntryUpdateRequest;
 use App\Models\Entry;
 use Illuminate\Http\Request;
+use App\Services\HouseholdPlanService;
 
 class EntryController extends Controller
 {
@@ -34,8 +35,9 @@ class EntryController extends Controller
      * @param \App\Http\Requests\Acp\EntryStoreRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(EntryStoreRequest $request)
+    public function store(EntryStoreRequest $request, HouseholdPlanService $plans)
     {
+        $plans->assertWithinLimit(auth()->user()->household(), 'transactions');
         $entry = Entry::create(array_merge($request->validated(), [
             'user_id' => auth()->id(),
             'household_id' => auth()->user()->household()->id,

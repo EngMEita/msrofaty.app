@@ -46,6 +46,7 @@ class BudgetController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = auth()->id();
+        $data['household_id'] = auth()->user()->household()->id;
 
         $budget = Budget::create($data);
 
@@ -87,7 +88,7 @@ class BudgetController extends Controller
     {
         $this->authorize('update', $budget);
 
-        $budget->update($request->validated());
+        $budget->update(array_merge($request->validated(), ['user_id' => auth()->id(), 'household_id' => auth()->user()->household()->id]));
 
         // Update categories if provided
         if ($request->has('categories')) {

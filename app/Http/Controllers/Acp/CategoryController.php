@@ -50,6 +50,7 @@ class CategoryController extends Controller
      */
     public function show(Request $request, Category $category)
     {
+        abort_unless($category->household_id === auth()->user()->household()->id, 404);
         return view('acp.category.show', compact('category'));
     }
 
@@ -62,6 +63,7 @@ class CategoryController extends Controller
     {
         $categories = auth()->user()->household()->categories()->get();
         $current    = Category::findOrFail($id);
+        abort_unless($current->household_id === auth()->user()->household()->id, 404);
         $list       = $this->categorisList();
         return view('acp.category.index', compact('categories', 'current', 'list'));
     }

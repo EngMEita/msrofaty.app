@@ -22,9 +22,7 @@ class RecordController extends Controller
      */
     public function index(Request $request): View
     {
-        $records = Record::whereHas('entry', function ($query) {
-            $query->where('user_id', auth()->id());
-        })
+        $records = auth()->user()->household()->records()
             ->with(['entry', 'account', 'category'])
             ->latest('created_at')
             ->paginate(50);
