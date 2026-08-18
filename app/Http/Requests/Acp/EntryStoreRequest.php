@@ -26,6 +26,12 @@ class EntryStoreRequest extends FormRequest
         return [
             'date' => ['required', 'date'],
             'note' => ['string'],
+            'records' => ['required', 'array', 'min:1'],
+            'records.*.account_id' => ['required', 'integer', 'exists:accounts,id'],
+            'records.*.category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'records.*.type' => ['required', 'in:-1,1'],
+            'records.*.value' => ['required', 'numeric', 'gt:0', 'between:0.01,999999.99'],
+            'records.*.comment' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

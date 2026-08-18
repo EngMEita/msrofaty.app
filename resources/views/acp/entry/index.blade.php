@@ -1,7 +1,6 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        entry.index template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><div class="flex items-center justify-between"><div><span class="badge-ms">حساب الأسرة</span><h2 class="mt-2">المعاملات</h2></div><a class="btn-ms" href="{{ route('acp.entry.create') }}">+ إضافة عملية</a></div></x-slot>
+    <div class="py-8"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        @if($entries->count())<div class="grid gap-4">@foreach($entries as $entry)<article class="bg-white rounded-lg p-5 shadow-sm"><div class="flex flex-wrap items-center justify-between gap-3"><div><div class="flex items-center gap-2"><span class="badge-ms">{{ $entry->status ? 'متوازنة' : 'تحتاج تفاصيل' }}</span><h3 class="font-bold">{{ $entry->note ?: 'عملية بدون وصف' }}</h3></div><p class="text-sm text-gray-500 mt-2">{{ $entry->date?->format('d/m/Y') }} · أضافها {{ $entry->user?->name }}</p></div><div class="flex items-center gap-2"><a class="btn-light px-4 py-2" href="{{ route('acp.entry.show', $entry) }}">عرض</a><a class="btn-ms" href="{{ route('acp.entry.edit', $entry) }}">تعديل</a></div></div>@if($entry->records->count())<div class="mt-4 overflow-x-auto"><table><thead><tr><th>التفصيل</th><th>الحساب</th><th>التصنيف</th><th>المبلغ</th></tr></thead><tbody>@foreach($entry->records as $record)<tr><td>{{ $record->comment ?: '—' }}</td><td>{{ $record->account?->name ?: '—' }}</td><td>{{ $record->category?->name ?: '—' }}</td><td class="font-bold {{ $record->type < 0 ? 'text-red-600' : 'text-green-700' }}">{{ $record->type < 0 ? '−' : '+' }} {{ number_format((float)$record->value,2) }}</td></tr>@endforeach</tbody></table></div>@else<p class="mt-4 text-sm text-gray-500">لم تتم إضافة تفاصيل الحساب بعد.</p>@endif</article>@endforeach</div><div class="mt-6">{{ $entries->links() }}</div>@else<div class="bg-white rounded-lg p-12 text-center shadow-sm"><div class="mx-auto mb-4 grid place-items-center rounded-full" style="width:68px;height:68px;background:#d9f1e4;font-size:30px">↙</div><h3 class="text-xl font-bold">لا توجد معاملات بعد</h3><p class="text-gray-500 mt-2 mb-6">ابدأ بتسجيل أول مصروف أو إيراد للأسرة.</p><a class="btn-ms" href="{{ route('acp.entry.create') }}">إضافة أول عملية</a></div>@endif
+    </div></div>
+</x-app-layout>

@@ -8,6 +8,7 @@ use App\Http\Requests\Acp\EntryUpdateRequest;
 use App\Models\Entry;
 use Illuminate\Http\Request;
 use App\Services\HouseholdPlanService;
+use Illuminate\Support\Facades\DB;
 
 class EntryController extends Controller
 {
@@ -28,7 +29,12 @@ class EntryController extends Controller
      */
     public function create(Request $request)
     {
-        return view('acp.entry.create');
+        $household = auth()->user()->household();
+        return view('acp.entry.create', [
+            'today' => now()->format('Y-m-d'),
+            'accounts' => $household->accounts()->orderBy('name')->get(),
+            'categories' => $household->categories()->orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -38,10 +44,23 @@ class EntryController extends Controller
     public function store(EntryStoreRequest $request, HouseholdPlanService $plans)
     {
         $plans->assertWithinLimit(auth()->user()->household(), 'transactions');
-        $entry = Entry::create(array_merge($request->validated(), [
-            'user_id' => auth()->id(),
-            'household_id' => auth()->user()->household()->id,
-        ]));
+        $household = auth()->user()->household();
+        $data = $request->validated();
+        $records = $data['records'];
+        unset($data['records']);
+        foreach ($records as $record) {
+            abort_unless($household->accounts()->whereKey($record['account_id'])->exists(), 422);
+            if (!empty($record['category_id'])) {
+                abort_unless($household->categories()->whereKey($record['category_id'])->exists(), 422);
+            }
+        }
+        $entry = DB::transaction(function () use ($data, $records, $household) {
+            $entry = Entry::create(array_merge($data, ['user_id' => auth()->id(), 'household_id' => $household->id]));
+            foreach ($records as $record) {
+                $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
+            }
+            return $entry;
+        });
 
         $request->session()->flash('entry.id', $entry->id);
 

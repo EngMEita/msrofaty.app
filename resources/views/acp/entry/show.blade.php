@@ -1,7 +1,4 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        entry.show template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><div class="flex items-center justify-between"><h2>{{ $entry->note ?: 'تفاصيل العملية' }}</h2><a class="btn-ms" href="{{ route('acp.entry.edit', $entry) }}">تعديل</a></div></x-slot>
+    <div class="py-8"><div class="max-w-4xl mx-auto px-4"><div class="bg-white rounded-lg p-6 shadow-sm"><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"><div class="rounded-lg p-4" style="background:#f2f7f3"><small class="text-gray-500">التاريخ</small><strong class="block mt-1">{{ $entry->date?->format('d/m/Y') }}</strong></div><div class="rounded-lg p-4" style="background:#e9f5ee"><small class="text-gray-500">الإيرادات</small><strong class="block mt-1 text-green-700">+ {{ number_format((float)$entry->deposit,2) }}</strong></div><div class="rounded-lg p-4" style="background:#fff0e4"><small class="text-gray-500">المصروفات</small><strong class="block mt-1 text-red-600">− {{ number_format((float)$entry->withdraw,2) }}</strong></div></div><h3 class="font-bold mb-3">تفاصيل الحسابات</h3>@if($entry->records->count())<div class="overflow-x-auto"><table><thead><tr><th>الوصف</th><th>الحساب</th><th>التصنيف</th><th>النوع</th><th>المبلغ</th></tr></thead><tbody>@foreach($entry->records as $record)<tr><td>{{ $record->comment ?: '—' }}</td><td>{{ $record->account?->name ?: '—' }}</td><td>{{ $record->category?->name ?: '—' }}</td><td>{{ $record->type < 0 ? 'مصروف' : 'إيراد' }}</td><td>{{ number_format((float)$record->value,2) }}</td></tr>@endforeach</tbody></table></div>@else<p class="text-gray-500">لا توجد تفاصيل مرتبطة بهذه العملية.</p>@endif</div></div></div>
+</x-app-layout>
