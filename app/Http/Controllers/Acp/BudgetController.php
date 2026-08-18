@@ -22,7 +22,7 @@ class BudgetController extends Controller
      */
     public function index(Request $request): View
     {
-        $budgets = auth()->user()->budgets()
+        $budgets = auth()->user()->household()->budgets()
             ->with(['categories'])
             ->latest('created_at')
             ->paginate(20);

@@ -1,7 +1,6 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        budget.edit template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><h2>تعديل الميزانية</h2></x-slot>
+    <div class="py-8"><div class="max-w-3xl mx-auto px-4"><div class="bg-white rounded-lg p-6 shadow-sm"><form method="POST" action="{{ route('acp.budget.update', $budget) }}" class="grid gap-5">@csrf @method('PUT')
+        <div><label for="name">اسم الميزانية</label><input id="name" name="name" value="{{ old('name', $budget->name) }}" required></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="start_date">تبدأ من</label><input id="start_date" type="date" name="start_date" value="{{ old('start_date', $budget->start_date?->format('Y-m-d')) }}" required></div><div><label for="end_date">تنتهي في</label><input id="end_date" type="date" name="end_date" value="{{ old('end_date', $budget->end_date?->format('Y-m-d')) }}" required></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label for="limit">الحد المسموح</label><input id="limit" type="number" step="0.01" min="0" name="limit" value="{{ old('limit', $budget->limit) }}" required></div><div><label for="notice">التنبيه عند</label><input id="notice" type="number" step="0.01" min="0" name="notice" value="{{ old('notice', $budget->notice) }}" required></div></div><div><label>التصنيفات</label><div class="grid grid-cols-2 gap-3 mt-2">@foreach($categories as $category)<label class="flex items-center gap-2"><input type="checkbox" name="categories[]" value="{{ $category->id }}" @checked(in_array($category->id, $selectedCategories))> <span>{{ $category->name }}</span></label>@endforeach</div></div><div class="flex justify-end gap-3 pt-3"><a class="btn-light px-5 py-2" href="{{ route('acp.budget.index') }}">إلغاء</a><button class="btn-ms" type="submit">حفظ التعديلات</button></div>
+    </form></div></div></div>
+</x-app-layout>

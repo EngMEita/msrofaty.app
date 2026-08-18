@@ -1,7 +1,4 @@
-{{--
-    @extends('layouts.app')
-
-    @section('content')
-        budget.show template
-    @endsection
---}}
+<x-app-layout>
+    <x-slot name="header"><div class="flex items-center justify-between"><h2>{{ $budget->name }}</h2><a class="btn-ms" href="{{ route('acp.budget.edit', $budget) }}">تعديل</a></div></x-slot>
+    <div class="py-8"><div class="max-w-3xl mx-auto px-4"><div class="bg-white rounded-lg p-6 shadow-sm"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="rounded-lg p-4" style="background:#f2f7f3"><small class="text-gray-500">الحد المسموح</small><strong class="block text-2xl mt-1">{{ number_format((float)$budget->limit,2) }}</strong></div><div class="rounded-lg p-4" style="background:#fff4e8"><small class="text-gray-500">قيمة التنبيه</small><strong class="block text-2xl mt-1">{{ number_format((float)$budget->notice,2) }}</strong></div><div class="rounded-lg p-4" style="background:#eef0fb"><small class="text-gray-500">الفترة</small><strong class="block text-sm mt-2">{{ $budget->start_date?->format('d/m/Y') }} — {{ $budget->end_date?->format('d/m/Y') }}</strong></div></div><h3 class="font-bold mt-8 mb-3">التصنيفات المرتبطة</h3><div class="flex flex-wrap gap-2">@forelse($budget->categories as $category)<span class="badge-ms">{{ $category->name }}</span>@empty<span class="text-gray-500">لم يتم تحديد تصنيفات بعد.</span>@endforelse</div></div></div></div>
+</x-app-layout>
