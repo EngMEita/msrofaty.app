@@ -86,7 +86,9 @@ class EntryController extends Controller
     public function edit(Request $request, Entry $entry)
     {
         $this->authorize('update', $entry);
-        return view('acp.entry.edit', compact('entry'));
+        $household = auth()->user()->household();
+        $entry->load('records');
+        return view('acp.entry.edit', ['entry' => $entry, 'accounts' => $household->accounts()->orderBy('name')->get(), 'categories' => $household->categories()->orderBy('name')->get()]);
     }
 
     /**
@@ -96,7 +98,19 @@ class EntryController extends Controller
      */
     public function update(EntryUpdateRequest $request, Entry $entry)
     {
-        $entry->update(array_merge($request->validated(), ['user_id' => auth()->id()]));
+        $household = auth()->user()->household();
+        $data = $request->validated();
+        $records = $data['records'];
+        unset($data['records']);
+        foreach ($records as $record) {
+            abort_unless($household->accounts()->whereKey($record['account_id'])->exists(), 422);
+            if (!empty($record['category_id'])) abort_unless($household->categories()->whereKey($record['category_id'])->exists(), 422);
+        }
+        DB::transaction(function () use ($entry, $data, $records, $household) {
+            $entry->update(array_merge($data, ['user_id' => auth()->id()]));
+            $entry->records()->delete();
+            foreach ($records as $record) $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
+        });
 
         $request->session()->flash('entry.id', $entry->id);
 
