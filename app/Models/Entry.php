@@ -9,6 +9,18 @@ class Entry extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::created(fn (Entry $entry) => $entry->writeAudit('created', $entry->getAttributes()));
+        static::updated(fn (Entry $entry) => $entry->writeAudit('updated', $entry->getChanges()));
+        static::deleted(fn (Entry $entry) => $entry->writeAudit('deleted', $entry->getOriginal()));
+    }
+
+    protected function writeAudit(string $action, array $changes): void
+    {
+        AuditLog::create(['household_id' => $this->household_id, 'user_id' => auth()->id(), 'auditable_type' => static::class, 'auditable_id' => $this->id, 'action' => $action, 'changes' => $changes]);
+    }
+
     /**
      * The attributes that are mass assignable.
      *
