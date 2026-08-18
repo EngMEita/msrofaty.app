@@ -36,6 +36,9 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
+        if ($request->filled('category_id')) {
+            abort_unless(auth()->user()->household()->categories()->whereKey($request->category_id)->exists(), 422);
+        }
         $category = Category::create(array_merge($request->validated(), ['household_id' => auth()->user()->household()->id]));
 
         $request->session()->flash('category.id', $category->id);
@@ -76,6 +79,9 @@ class CategoryController extends Controller
     public function update(CategoryUpdateRequest $request, Category $category)
     {
         abort_unless($category->household_id === auth()->user()->household()->id, 404);
+        if ($request->filled('category_id')) {
+            abort_unless(auth()->user()->household()->categories()->whereKey($request->category_id)->exists(), 422);
+        }
         $category->update($request->validated());
 
         $request->session()->flash('category.id', $category->id);

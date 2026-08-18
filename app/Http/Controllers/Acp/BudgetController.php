@@ -52,7 +52,7 @@ class BudgetController extends Controller
 
         // Attach categories if provided
         if ($request->has('categories')) {
-            $budget->categories()->sync($request->input('categories'));
+            $budget->categories()->sync(auth()->user()->household()->categories()->whereIn('id', $request->input('categories', []))->pluck('id'));
         }
 
         return redirect()->route('acp.budget.index')->with('message', 'Budget created successfully.');
@@ -92,7 +92,7 @@ class BudgetController extends Controller
 
         // Update categories if provided
         if ($request->has('categories')) {
-            $budget->categories()->sync($request->input('categories'));
+            $budget->categories()->sync(auth()->user()->household()->categories()->whereIn('id', $request->input('categories', []))->pluck('id'));
         }
 
         return redirect()->route('acp.budget.index')->with('message', 'Budget updated successfully.');
