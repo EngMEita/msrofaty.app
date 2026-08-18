@@ -58,12 +58,16 @@ class EntryController extends Controller
             }
         }
         foreach ($paymentSplits as $split) abort_unless($household->accounts()->whereKey($split['account_id'])->exists(), 422);
-        $entry = DB::transaction(function () use ($data, $records, $paymentSplits, $household) {
+        $entry = DB::transaction(function () use ($data, $records, $paymentSplits, $household, $request) {
             $entry = Entry::create(array_merge($data, ['user_id' => auth()->id(), 'household_id' => $household->id, 'workflow_status' => 'draft', 'reference_number' => 'OP-' . now()->format('YmdHis') . '-' . random_int(100, 999)]));
             foreach ($records as $record) {
                 $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
             }
             foreach ($paymentSplits as $split) $entry->paymentSplits()->create($split);
+            foreach ($request->file('attachments', []) as $file) {
+                $path = $file->store('entry-attachments', 'public');
+                $entry->attachments()->create(['disk' => 'public', 'path' => $path, 'original_name' => $file->getClientOriginalName(), 'mime_type' => $file->getMimeType(), 'size' => $file->getSize()]);
+            }
             $entry->refresh();
             $allocated = (float) $entry->records()->sum('value');
             $paid = (float) $entry->paymentSplits()->sum('amount');
@@ -84,7 +88,7 @@ class EntryController extends Controller
     public function show(Request $request, Entry $entry)
     {
         $this->authorize('view', $entry);
-        $entry->load(['records.account', 'records.category', 'paymentSplits.account']);
+        $entry->load(['records.account', 'records.category', 'paymentSplits.account', 'attachments']);
         return view('acp.entry.show', compact('entry'));
     }
 
@@ -120,12 +124,16 @@ class EntryController extends Controller
             if (!empty($record['category_id'])) abort_unless($household->categories()->whereKey($record['category_id'])->exists(), 422);
         }
         foreach ($paymentSplits as $split) abort_unless($household->accounts()->whereKey($split['account_id'])->exists(), 422);
-        DB::transaction(function () use ($entry, $data, $records, $paymentSplits, $household) {
+        DB::transaction(function () use ($entry, $data, $records, $paymentSplits, $household, $request) {
             $entry->update(array_merge($data, ['user_id' => auth()->id()]));
             $entry->records()->delete();
             foreach ($records as $record) $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
             $entry->paymentSplits()->delete();
             foreach ($paymentSplits as $split) $entry->paymentSplits()->create($split);
+            foreach ($request->file('attachments', []) as $file) {
+                $path = $file->store('entry-attachments', 'public');
+                $entry->attachments()->create(['disk' => 'public', 'path' => $path, 'original_name' => $file->getClientOriginalName(), 'mime_type' => $file->getMimeType(), 'size' => $file->getSize()]);
+            }
             $allocated = (float) $entry->records()->sum('value');
             $paid = (float) $entry->paymentSplits()->sum('amount');
             $entry->update(['workflow_status' => abs((float) $entry->total_amount - $allocated) < .01 && abs((float) $entry->total_amount - $paid) < .01 ? 'balanced' : (count($records) || count($paymentSplits) ? 'allocated' : 'draft')]);

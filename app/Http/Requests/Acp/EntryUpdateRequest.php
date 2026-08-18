@@ -39,6 +39,8 @@ class EntryUpdateRequest extends FormRequest
             'payment_splits.*.account_id' => ['required', 'integer', 'exists:accounts,id'],
             'payment_splits.*.amount' => ['required', 'numeric', 'gt:0', 'between:0.01,9999999999.99'],
             'payment_splits.*.note' => ['nullable', 'string', 'max:255'],
+            'attachments' => ['nullable', 'array', 'max:10'],
+            'attachments.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
         ];
     }
 }
