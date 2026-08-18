@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'platform_admin',
         'password',
     ];
 
@@ -41,6 +42,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'platform_admin' => 'boolean',
     ];
 
     public function setPasswordAttribute($value = null)

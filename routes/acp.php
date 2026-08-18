@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('acp')->name('acp.')->middleware(['auth'])->group(function () {
+Route::prefix('family')->name('acp.')->middleware(['auth'])->group(function () {
     Route::get('/', [App\Http\Controllers\Acp\HomeController::class, 'index'])->name('dashboard');
     Route::get('/report/{year}/{month}', [App\Http\Controllers\Acp\HomeController::class, 'report'])->name('report');
 

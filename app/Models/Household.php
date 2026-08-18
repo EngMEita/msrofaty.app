@@ -9,7 +9,11 @@ class Household extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'owner_id', 'status'];
+    protected $casts = ['owner_id' => 'integer'];
+    public function owner() { return $this->belongsTo(User::class, 'owner_id'); }
+    public function subscriptions() { return $this->hasMany(Subscription::class); }
+    public function subscription() { return $this->hasOne(Subscription::class)->latestOfMany(); }
 
     public function users()
     {
