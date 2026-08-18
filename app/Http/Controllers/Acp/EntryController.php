@@ -56,10 +56,11 @@ class EntryController extends Controller
             }
         }
         $entry = DB::transaction(function () use ($data, $records, $household) {
-            $entry = Entry::create(array_merge($data, ['user_id' => auth()->id(), 'household_id' => $household->id]));
+            $entry = Entry::create(array_merge($data, ['user_id' => auth()->id(), 'household_id' => $household->id, 'workflow_status' => 'draft', 'reference_number' => 'OP-' . now()->format('YmdHis') . '-' . random_int(100, 999)]));
             foreach ($records as $record) {
                 $entry->records()->create(array_merge($record, ['household_id' => $household->id]));
             }
+            if (count($records)) $entry->update(['workflow_status' => 'allocated']);
             return $entry;
         });
 

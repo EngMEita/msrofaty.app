@@ -19,6 +19,8 @@ class Entry extends Model
         'note',
         'total_amount',
         'entry_type',
+        'workflow_status',
+        'reference_number',
         'currency',
         'user_id',
         'household_id',
